@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Player</title>
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #e8c3c2, #6c5b7b);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: #f7b42c;
+        }
+
+        /* Audio Container */
+        .audio-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 60%;
+            max-width: 500px;
+            position:absolute;
+            left: 30%;
+            transform: translateX(-80%);
+            transition: all 0.5s ease;
+            z-index: 2;
+        }
+        .audio-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #f7b42c;
+        }
+
+        .audio-player {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .audio-controls button {
+            background-color: #f7b42c;
+            color: #030303;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .audio-controls button:hover {
+            background-color: #ffbf00;
+            transform: scale(1.1);
+        }
+
+        .audio-controls button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .volume-slider {
+            width: 100px;
+            background-color: #444;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .volume-slider input {
+            width: 100%;
+            height: 100%;
+            appearance: none;
+            background-color: #f7b42c;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider input:hover {
+            background-color: #ffbf00;
+        }
+
+        /* Scrollable Songs List */
+        .songs-list {
+          display: flex;
+            flex-direction: column;
+            margin-top: 30px;
+            gap: 15px;
+            align-items: center;
+            transform: translateX(-40%);
+        }
+
+        .song-item {
+          background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 80%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .song-item:hover {
+            background-color: #f7b42c;
+            color: #333;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .audio-container {
+                width: 50%;
+                padding: 20px 30px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="audio-container" id="audioContainer">
+        <h1>Listen to the Music</h1>
+        <div class="audio-player">
+            <div class="audio-title" id="currentSongTitle">Amazing Track</div>
+            <audio id="audio" controls>
+                <source id="audioSource" src="your-audio-file.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+
+            <div class="audio-controls">
+                <button id="playPauseButton">Play</button>
+                <button id="skipButton">Skip</button>
+            </div>
+
+            <div class="volume-slider">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+            </div>
+        </div>
+    </div>
+
+    <!-- Songs List Container -->
+    <div class="songs-list" id="songsList">
+        <div class="song-item" data-audio="track1.mp3">Song 1 - Amazing Track</div>
+        <div class="song-item" data-audio="track2.mp3">Song 2 - Another Track</div>
+        <div class="song-item" data-audio="track3.mp3">Song 3 - Cool Beat</div>
+        <div class="song-item" data-audio="track4.mp3">Song 4 - Relaxing Vibes</div>
+        <div class="song-item" data-audio="track5.mp3">Song 5 - Upbeat Jam</div>
+    </div>
+
+    <script>
+        // Play/Pause Button
+        const playPauseButton = document.getElementById('playPauseButton');
+        const audio = document.getElementById('audio');
+        const audioContainer = document.getElementById('audioContainer');
+        const currentSongTitle = document.getElementById('currentSongTitle');
+        const audioSource = document.getElementById('audioSource');
+        const songsList = document.getElementById('songsList');
+
+        playPauseButton.addEventListener('click', function() {
+            if (audio.paused) {
+                audio.play();
+                playPauseButton.textContent = 'Pause';
+                audioContainer.style.transform = 'translateX(100%)'; // Move the container to the right
+                songsList.style.opacity = 1;
+                songsList.style.visibility = 'visible';
+                songsList.style.zIndex = '1'; // Bring the song list to the front
+            } else {
+                audio.pause();
+                playPauseButton.textContent = 'Play';
+                audioContainer.style.transform = 'translateX(-50%)'; // Move the container back to center
+                songsList.style.opacity = 0;
+                songsList.style.visibility = 'hidden';
+                songsList.style.zIndex = '-1'; // Hide the song list behind
+            }
+        });
+
+        // Skip Button (Skip 10 seconds forward)
+        const skipButton = document.getElementById('skipButton');
+        skipButton.addEventListener('click', function() {
+            audio.currentTime += 10;
+        });
+
+        // Volume Control
+        const volumeSlider = document.getElementById('volumeSlider');
+        volumeSlider.addEventListener('input', function() {
+            audio.volume = volumeSlider.value;
+        });
+
+        // Song List Item Click to Change Song
+        const songItems = document.querySelectorAll('.song-item');
+        songItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const newSong = item.getAttribute('data-audio');
+                const songTitle = item.textContent;
+
+                // Update Audio Source
+                audioSource.src = newSong;
+                currentSongTitle.textContent = songTitle;
+
+                // Reload and Play
+                audio.load();
+                audio.play();
+
+                // Change Button Text
+                playPauseButton.textContent = 'Pause';
+                audioContainer.style.transform = 'translateX(100%)'; // Move container to the right
+                songsList.style.opacity = 1;
+                songsList.style.visibility = 'visible';
+                songsList.style.zIndex = '1'; // Make the song list visible
+            });
+        });
+    </script>
+
+</body>
+</html>
